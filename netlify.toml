@@ -2,9 +2,17 @@
   publish = "frontend/dist"
   command = "cd frontend && npm install && npm run build"
 
+[functions]
+  node_bundler = "esbuild"
+
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  from = "/api/leads"
+  to = "/.netlify/functions/leads"
+  status = 200
+
+[[redirects]]
+  from = "/api/upload"
+  to = "/.netlify/functions/upload"
   status = 200
 
 [[redirects]]

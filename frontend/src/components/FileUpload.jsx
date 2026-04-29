@@ -1,5 +1,4 @@
 import React, { useRef } from 'react'
-import axios from 'axios'
 import '../styles/FileUpload.css'
 
 export default function FileUpload({ onUpload }) {
@@ -11,9 +10,6 @@ export default function FileUpload({ onUpload }) {
     const file = e.target.files[0]
     if (!file) return
 
-    // Get token from localStorage
-    const token = localStorage.getItem('token')
-
     setUploading(true)
     setError('')
 
@@ -21,18 +17,23 @@ export default function FileUpload({ onUpload }) {
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await axios.post('/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`
-        }
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
       })
 
-      onUpload(response.data.leads || [])
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}))
+        throw new Error(body.message || 'Failed to upload file')
+      }
+
+      const data = await response.json()
+      onUpload(data.leads || [])
       alert('File uploaded successfully!')
       fileInputRef.current.value = ''
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to upload file')
+      setError(err.message)
     } finally {
       setUploading(false)
     }
